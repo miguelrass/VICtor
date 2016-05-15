@@ -21,7 +21,8 @@
 
 
 module vic_irq(
-    inout io_IRQ,
+    input i_IRQ,
+    output reg o_IRQ,
     input [123:0] i_reg, //en/fall/rise/level
     input i_clk,
     input i_rst,
@@ -46,14 +47,14 @@ generate //verificar a necessidade de generate
     end
 endgenerate
 
-always@(rst) begin 
+always@(i_rst) begin 
     irq_x <= 31'b0; 
     //ver mais registos pa fazer reset
 end 
 
 integer j;
 
-always@(negedge io_IRQ) begin
+always@(negedge i_IRQ) begin
     irq_x[o_irq_addr] = 0;
     
     if(irq_x != 0 && i_en == 1) begin
@@ -61,17 +62,19 @@ always@(negedge io_IRQ) begin
             if(irq_x[j])
                 o_irq_addr = j;
         end        
-        io_IRQ = 1;
+        o_IRQ = 1;
+        o_IRQ = 0;
     end
 end
 
 always@(irq_x) begin
-    if(io_IRQ == 0 && i_en == 1) begin
+    if(i_IRQ == 0 && i_en == 1) begin
         for (j=30; j>=0; j=j-1 ) begin
             if(irq_x[j])
                 o_irq_addr = j;
         end
-        io_IRQ = 1;
+        o_IRQ = 1;
+        o_IRQ = 0;
     end
 end
  
