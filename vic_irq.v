@@ -49,7 +49,8 @@ endgenerate
 
 always@(i_rst) begin 
     irq_x <= 31'b0; 
-    //ver mais registos pa fazer reset
+    o_IRQ = 0;
+    o_irq_addr = 0;
 end 
 
 integer j;
@@ -67,11 +68,13 @@ always@(negedge i_IRQ) begin
     end
 end
 
+integer k;
+
 always@(irq_x) begin
     if(i_IRQ == 0 && i_en == 1) begin
-        for (j=30; j>=0; j=j-1 ) begin
-            if(irq_x[j])
-                o_irq_addr = j;
+        for (k=30; k>=0; k=k-1 ) begin
+            if(irq_x[k])
+                o_irq_addr = k;
         end
         o_IRQ = 1;
         o_IRQ = 0;
