@@ -23,7 +23,7 @@
 module vic_irq(
     input i_IRQ,
     output reg o_IRQ,
-    input [123:0] i_reg, //en/fall/rise/level
+    input [123:0] i_reg, //en/rise/fall/level
     input i_clk,
     input i_rst,
     input [30:0] i_ext,
@@ -39,14 +39,16 @@ genvar i;
 generate //verificar a necessidade de generate
     for (i=0; i<31; i=i+1 ) begin
         always@(i_ext[i]) begin 
-            irq_x[i] = (irq_x[i] && i_reg[4*i+2])?                        1 : 
-                       (~irq_x[i] && i_reg[4*i+1])?                        1 : 
-                       (i_reg[4*i+2:4*i+1]==0 && i_reg[4*i+3]==irq_x[i])?  1 : 
+            irq_x[i] = (i_reg[4*i+3]==1 && i_ext[i] && i_reg[4*i+2])?           1 : 
+                       (i_reg[4*i+3]==1 && ~i_ext[i] && i_reg[4*i+1])?          1 : 
+                       (i_reg[4*i+3:4*i+1]==3'b100 && i_reg[4*i]==i_ext[i])?    1 : 
                                                                            irq_x[i];
         end 
     end
 endgenerate
 
+//No reset as interrupcoes ativas ao nivel sao ignoradas até acontecer uma transicao
+//isto acontece porque os perifericos devem ser configurados antes de poderem interromper o CPU
 always@(i_rst) begin 
     irq_x <= 31'b0; 
     o_IRQ = 0;
@@ -56,7 +58,8 @@ end
 integer j;
 
 always@(negedge i_IRQ) begin
-    irq_x[o_irq_addr] = 0;
+    if(i_reg[4*o_irq_addr]!=i_ext[o_irq_addr])
+        irq_x[o_irq_addr] = 0;
     
     if(irq_x != 0 && i_en == 1) begin
         for (j=30; j>=0; j=j-1 ) begin
