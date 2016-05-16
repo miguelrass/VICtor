@@ -29,20 +29,18 @@ module vic_ctrl(
     input i_IRQ,
     output reg o_IRQ,
     output reg [31:0] o_VIC_iaddr,
-    output reg o_VIC_PC_ctrl  
+    output reg o_VIC_PC_ctrl
     );
 
     reg [31:0]saved_PC; // stores the PC value   
     
     always @(posedge i_IRQ) begin     
         o_IRQ = 1'b1;
-        
-        //in case of sequencial interrupts we don't need to resave the program counter
+        //In case of sequencial interrupts we don't need to resave the program counter
         if(~i_reti) begin
             //@(posedge i_clk);
             saved_PC = i_PC;
-        end
-        
+        end        
         o_VIC_PC_ctrl = 1'b1;
         o_VIC_iaddr = i_ISR_addr;
     end

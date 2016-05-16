@@ -18,36 +18,47 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-`define BUFF_WIDTH 32*4 
+
+`define CONFREG_WIDTH 4
+`define CONFREGADDR_WIDTH 5
+`define ARRAY_LENGTH 32
+`define BUFF_WIDTH `CONFREG_WIDTH*`ARRAY_LENGTH 
 
 module vic_registers(
-    input i_clk,
-    input i_rst,
-    input [4:0] i_VIC_regaddr,
-    input [3:0] i_VIC_data,
-    output [3:0] o_VIC_data,
-    input i_VIC_we,
-    input i_VIC_re,
-    output reg [127:0] buffer// Configuration Registers
+        input clk,
+        input rst, 
+        input [`CONFREGADDR_WIDTH-1:0] i_VIC_regaddr, //register address
+        input [`CONFREG_WIDTH-1:0] i_VIC_data, //Input data
+        output reg [`CONFREG_WIDTH-1:0] o_VIC_data, //Output Data
+        input i_VIC_we, //Write Operation signal
+        input i_VIC_re, //Read Operation Signal
+        output [`BUFF_WIDTH-1:0] o_buffer// Configuration Registers
     );
-
-    wire [127:0]buffer_store_data;
     
-    assign buffer_store_data = ((buffer >> i_VIC_regaddr*4) & 8'h0000000f);    
-    assign o_VIC_data = (i_VIC_re) ? buffer_store_data[4:0]  : 4'b0000; // output port assignment 
+    //Configuration Registers Memory
+    reg [`CONFREG_WIDTH-1:0] buffer_store_data [`ARRAY_LENGTH-1:0]; 
     
-    integer count;
-    
-    always @(posedge i_clk)
-        begin
-            if(i_rst) begin
-                   for (count = 0; count < 32; count = count + 1)
-                    buffer <= 8'h00000000;
+    generate
+        genvar i;
+            //Bind the output bus to the respective memory location    
+            for (i = 0; i < `ARRAY_LENGTH; i = i + 1) begin
+                   assign o_buffer[`CONFREG_WIDTH * i + `CONFREG_WIDTH - 1: `CONFREG_WIDTH * i] = buffer_store_data[i][`CONFREG_WIDTH - 1:0];
             end
-            
-            if(i_VIC_we && ~i_rst) begin
-             buffer <= buffer | (i_VIC_data << i_VIC_regaddr*4);                
-            end
+    endgenerate
+    
+    integer j;
+    always @(posedge clk) begin
+        if(rst) begin  
+            //Initializing  memory with zeros    
+            for ( j = 0; j < `ARRAY_LENGTH; j = j + 1 ) 
+                buffer_store_data[j] = 4'b0000;
         end
-    
+        
+        else begin
+            if(i_VIC_we) // Write Operation
+                buffer_store_data[i_VIC_regaddr] = i_VIC_data;
+            else if (i_VIC_re) // Read Operation
+                o_VIC_data = buffer_store_data[i_VIC_regaddr];     
+        end
+    end
 endmodule
