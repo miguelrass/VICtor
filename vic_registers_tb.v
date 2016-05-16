@@ -35,14 +35,14 @@ module vic_registers_tb(
     
     
     vic_registers vr(       
-        .i_clk(Clk),
-        .i_rst(Rst),
+        .clk(Clk),
+        .rst(Rst),
         .i_VIC_regaddr(index),
         .i_VIC_data(i_data),
         .o_VIC_data(o_data),
         .i_VIC_we(we),
         .i_VIC_re(re),
-        .buffer(buffer)
+        .o_buffer(buffer)
     );
     
     integer i;
