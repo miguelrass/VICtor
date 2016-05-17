@@ -78,9 +78,6 @@ task new_interrupt;
         #1
         o_IRQ = 0;
     end
-endtask
- 
-
-    
+endtask    
     
 endmodule

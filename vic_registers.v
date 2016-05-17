@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 `define CONFREG_WIDTH 4
-`define CONFREGADDR_WIDTH 5
+`define CONFREGADDR_WIDTH 5   //<------- FFFFFFA0 FFFFFF00 FFFFFFE0 F0000000
 `define ARRAY_LENGTH 32
 `define BUFF_WIDTH `CONFREG_WIDTH*`ARRAY_LENGTH 
 
@@ -31,7 +31,7 @@ module vic_registers(
         input [`CONFREG_WIDTH-1:0] i_VIC_data, //Input data
         output reg [`CONFREG_WIDTH-1:0] o_VIC_data, //Output Data
         input i_VIC_we, //Write Operation signal
-        input i_VIC_re, //Read Operation Signal
+        //input i_VIC_re, //Read Operation Signal
         output [`BUFF_WIDTH-1:0] o_buffer// Configuration Registers
     );
     
@@ -39,11 +39,11 @@ module vic_registers(
     reg [`CONFREG_WIDTH-1:0] buffer_store_data [`ARRAY_LENGTH-1:0]; 
     
     generate
-        genvar i;
-            //Bind the output bus to the respective memory location    
-            for (i = 0; i < `ARRAY_LENGTH; i = i + 1) begin
-                   assign o_buffer[`CONFREG_WIDTH * i + `CONFREG_WIDTH - 1: `CONFREG_WIDTH * i] = buffer_store_data[i][`CONFREG_WIDTH - 1:0];
-            end
+    genvar i;
+        //Bind the output bus to the respective memory location    
+        for (i = 0; i < `ARRAY_LENGTH; i = i + 1) begin
+            assign o_buffer[`CONFREG_WIDTH * i + `CONFREG_WIDTH - 1: `CONFREG_WIDTH * i] = buffer_store_data[i][`CONFREG_WIDTH - 1:0];
+        end
     endgenerate
     
     integer j;
@@ -57,7 +57,7 @@ module vic_registers(
         else begin
             if(i_VIC_we) // Write Operation
                 buffer_store_data[i_VIC_regaddr] = i_VIC_data;
-            else if (i_VIC_re) // Read Operation
+            else  // Read Operation
                 o_VIC_data = buffer_store_data[i_VIC_regaddr];     
         end
     end
