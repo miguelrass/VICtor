@@ -31,7 +31,8 @@ module vic_registers_tb(
     wire [3:0]o_data;
     reg we;
     reg re;
-    wire [127:0] buffer;
+    wire [123:0] buffer;
+    wire o_enable;
     
     
     vic_registers vr(       
@@ -42,7 +43,8 @@ module vic_registers_tb(
         .o_VIC_data(o_data),
         .i_VIC_we(we),
         .i_VIC_re(re),
-        .o_buffer(buffer)
+        .o_buffer(buffer),
+        .o_enable(o_enable)
     );
     
     integer i;
@@ -56,7 +58,7 @@ module vic_registers_tb(
         #10
         Rst = 0;
         
-        for (i = 0 ; i < 32 ; i = i + 1)
+        for (i = 0 ; i < 31 ; i = i + 1)
             begin    
                 index = i;
                 re = 1'b0;
@@ -68,8 +70,16 @@ module vic_registers_tb(
                 re = 1'b1;
                 #10;
             end
+        
+        index = 31;
+        i_data = 4'b1111; //enable
+        #10
+        we = 1'b1;
+        #10
+        we = 1'b0;
+        re = 1'b1;
                      
-        #1000
+        #1200
         $finish;
         
     end

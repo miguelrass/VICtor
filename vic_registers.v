@@ -22,7 +22,8 @@
 `define CONFREG_WIDTH 4
 `define CONFREGADDR_WIDTH 5
 `define ARRAY_LENGTH 32
-`define BUFF_WIDTH `CONFREG_WIDTH*`ARRAY_LENGTH 
+`define BUFF_WIDTH `CONFREG_WIDTH*(`ARRAY_LENGTH-1)
+`define ENA_INDEX 31
 
 module vic_registers(
         input clk,
@@ -30,6 +31,7 @@ module vic_registers(
         input [`CONFREGADDR_WIDTH-1:0] i_VIC_regaddr, //register address
         input [`CONFREG_WIDTH-1:0] i_VIC_data, //Input data
         output reg [`CONFREG_WIDTH-1:0] o_VIC_data, //Output Data
+        output wire o_enable, //Global Enable
         input i_VIC_we, //Write Operation signal
         input i_VIC_re, //Read Operation Signal
         output [`BUFF_WIDTH-1:0] o_buffer// Configuration Registers
@@ -37,6 +39,8 @@ module vic_registers(
     
     //Configuration Registers Memory
     reg [`CONFREG_WIDTH-1:0] buffer_store_data [`ARRAY_LENGTH-1:0]; 
+    
+    assign o_enable = buffer_store_data[`ENA_INDEX][0];
     
     generate
         genvar i;
@@ -61,4 +65,5 @@ module vic_registers(
                 o_VIC_data = buffer_store_data[i_VIC_regaddr];     
         end
     end
+
 endmodule
