@@ -75,13 +75,12 @@ task new_interrupt;
             if(irq_x[k])
                 o_irq_addr = k;
         end
-        o_IRQ = 1;
-        #1
-        o_IRQ = 0;
+        o_IRQ = 1;       
     end
 endtask    
    
 always@(posedge o_IRQ) begin
-    
+#1  o_IRQ = 0;
 end
+
 endmodule

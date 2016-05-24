@@ -53,14 +53,41 @@ module Vic_tb;
     initial
     begin
             clk=0;
+            i_VIC_we=0;
             rst=1;
             i_PC=0;
+            i_reti=0;
+            i_ext=0;
+            i_CCodes=0;
+            i_VIC_regaddr=0;
+            i_VIC_data=0;
         #10;
             i_PC=i_PC+4;
             rst=0;
+        #10
+            i_VIC_data = 4'b1100;
+            i_VIC_regaddr = 1;
+            i_VIC_we = 1;
+        #10
+            i_VIC_we = 0;
+        #10
+            i_VIC_data = 4'b1111;
+            i_VIC_regaddr = 31;
+            i_VIC_we = 1;
+        #10
+            i_VIC_we = 0;
+        #10
+            i_ext = 2;
+        #10
+            i_ext = 1;
+        #20
+            i_reti = 1;
+
         #100
         $finish;
     end
+    
+
     always #5 clk=~clk;
 
 endmodule
