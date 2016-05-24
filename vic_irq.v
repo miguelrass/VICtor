@@ -37,7 +37,7 @@ genvar i;
 
 generate //verificar a necessidade de generate
     for (i=0; i<31; i=i+1 ) begin
-        always@(i_ext[i]) begin 
+        always@(i_ext[i] or i_reg[4*i+3:4*i]) begin 
             irq_x[i] = (i_reg[4*i+3]==1 && i_ext[i] && i_reg[4*i+2])?           1 : 
                        (i_reg[4*i+3]==1 && ~i_ext[i] && i_reg[4*i+1])?          1 : 
                        (i_reg[4*i+3:4*i+1]==3'b100 && i_reg[4*i]==i_ext[i])?    1 : 
@@ -67,6 +67,7 @@ always@(irq_x) begin // Nova interrupcao
     new_interrupt;
 end
 
+
 task new_interrupt;
     integer k;
     if(irq_x != 0 && i_IRQ == 0 && i_en == 1) begin
@@ -79,5 +80,8 @@ task new_interrupt;
         o_IRQ = 0;
     end
 endtask    
+   
+always@(posedge o_IRQ) begin
     
+end
 endmodule
